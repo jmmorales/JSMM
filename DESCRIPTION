@@ -1,11 +1,22 @@
 Package: JSMM
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Joint Species Movement Modeling
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Juan Manuel Morales and Danielle Ramos
+Maintainer: pajarom@gmail.com
+Description: We extend the idea of joint species distribution modelling (JSDM) 
+have enabled researchers to move from species-level analyses to community-level 
+analyses, leading to statistically more efficient and ecologically more 
+informative use of data. Here we propose joint species movement modelling (JSMM) 
+as an analogous approach that enables one to infer both species- and 
+community-level movement parameters from multi-species capture-recapture data. 
+    The species-level movement parameters are modelled as a function of species 
+traits and/or their phylogenetic relationships, allowing one to ask how species 
+traits influence movements, and whether phylogenetically related species are more 
+similar in their movement patterns than expected from the measured traits. 
+    Joint species movement modelling also makes it possible to predict the 
+movement parameters of species not present in the training data, based on their 
+trait values and position in the phylogeny.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
