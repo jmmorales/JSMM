@@ -4,12 +4,17 @@
   #ns - number of species
   #nt - number of traits
   #transformation for continuous variable
+  #vectors of traits (only for the studied species)
 
-Tmatrix <- function(..., ns = ns, nt = nt, apply.log = TRUE){
+Tmatrix <- function(..., apply.log = TRUE){
+
+  x <- list(...)
+  n <- length(x) 
+  ns <- n
+  nt <- length(x[[1]])
   
   T <- matrix(0,nrow=ns, ncol=nt)
-  x <- list(...)
-  n <- length(x)
+
   for(i in 1:n){
     if(is.character(x[[i]])){
       colpos = x[[i]]
