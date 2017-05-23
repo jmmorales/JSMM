@@ -1,4 +1,4 @@
-loglik <- function(theta, ta, corridor, patch, di){
+loglik <- function(theta, tracks,corridor. = corridor, patch. = patch, di. = di){
 
   # theta = parameters;
   # ta = tracks;
@@ -9,8 +9,10 @@ loglik <- function(theta, ta, corridor, patch, di){
   betaC   <- theta[2]
   betaP   <- theta[3]
   li    <- 0
-
+  
+  idt <- tracks[,2]
   uid <- unique(idt) # where is idt?
+  ta <- tracks[,3]
 
   for(ss in 1:length(uid)){ #for each one of the tracks
     lta <- ta[idt==uid[ss]] #analyse each track separately;
@@ -18,7 +20,7 @@ loglik <- function(theta, ta, corridor, patch, di){
 
     for(i in 1:(length(lta)-1)){ #for each deslocation
       x <- lta[i]
-      pr <- exp(-di[x,]/alpha) * exp(betaC * corridor) * exp(betaP * patch)
+      pr <- exp(-di.[x,]/alpha) * exp(betaC * corridor.) * exp(betaP * patch.)
       pr <- pr / sum(pr)
       pr <- pr + 10^(-10) # is this really necesary?
       pr <- pr / sum(pr)
