@@ -6,7 +6,7 @@
   # matrix of tracks; columns: specie/track ID/position (pixel number); the position should be 
     # in the correct order of movement and the order of the lines represent the order of movement
   # phylogenetic correlation table
-  # traits table (first column are species names; other columns are numerical ou cathegorical 
+  # traits table (first column are species names; other columns are numerical or categorical 
     # traits)
   # requires one continuous variable (mass)
   
@@ -22,11 +22,7 @@ set.input <- function (tracks = tracks, traits = traits, phy.cor = cor, body.mas
       stop("Error: the first column of the table with tracks should contain the species 
 identification, the second the tracks identification, and the third the position")
     } else {
-      # check if tlength is integer
-      if(!is.integer(tlength)){
-        stop("Error: tlength should be numerical")
-      } else{
-        
+             
         TA1 = NA #tracks with more than 1 point
         SPS1 = NA #species identification for tracks
         #SP1 = NA
@@ -63,10 +59,12 @@ identification, the second the tracks identification, and the third the position
             else prob2 = c(prob2,sps[i])
           }
         }
-        print(paste("species with no traits: ", prob1))
-        print(paste("species with no trait values: ", prob2))
-        print(paste("species with no phylogeny: ", prob3))
-        
+                
+        rnames_probs <- c("species with no traits:", "species with no trait values:",
+                      "species with no phylogeny:")
+        results_probs <- matrix(c(prob1, prob2, prob3), 
+                            dimnames = list(rnames_probs,"Species with missing data"))
+            
         TA = TA1[!is.na(TA1)] #só tracks com pelo menos 2 pontos
         #SP = SP1[!is.na(SP1)] #espécies observadas
         TID = TID1[!is.na(TID1)]
@@ -75,7 +73,7 @@ identification, the second the tracks identification, and the third the position
         cindex = cindex[!is.na(cindex)]
         CC= cor[cindex,cindex] #same order for species in the correlation table
         
-        return(list(SP, tracks = data.frame(SPS,TID,TA), traits = traits1, cor = CC))
+        return(list(results_probs,SP, tracks = data.frame(SPS,TID,TA), traits = traits1, cor = CC))
       }
     }
   }
