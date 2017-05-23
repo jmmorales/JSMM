@@ -7,7 +7,7 @@
 strack <- function (tracks = tracks, tlength = 2, lsize = 3600){
   
   # check if tracks table has 3 columns
-  if(!ncol(tracks = 3)) {
+  if(!ncol(tracks) == 3) {
     stop("Error: the table with tracks should have 3 columns")
   } else {
     # check if 1 column is cathegorical (species names), and if other columns are numerical 
@@ -17,9 +17,14 @@ strack <- function (tracks = tracks, tlength = 2, lsize = 3600){
 identification, the second the tracks identification, and the third the position")
     } else {
       # check if tlength is integer
-      if(!is.integer(tlength)){
-        stop("Error: tlength should be numerical")
+      if(!is.wholenumber(tlength)){
+        stop("Error: tlength should be wholenumber")
       } else{
+        
+        TA = NA #tracks with more than 1 point
+        SPS = NA #species identification for tracks
+        #SP = NA
+        TID = NA #track ID
         
         sp = tracks[,1]
         sps = sp #list of observed species
