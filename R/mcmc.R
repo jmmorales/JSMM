@@ -21,40 +21,19 @@
   
 
 jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
-                      CC = CC, T = traits, tracks = tracks, parameters = c("log distance","corridor_aff", "forest_aff"),
+                      CC = CC, T = T, tracks = tracks, parameters = c("log distance","corridor_aff", "forest_aff"),
                       includeTraits = TRUE, includePhylogeny = TRUE, n.iter = 5000, adapt = 1000){
   
   tpm0 <- proc.time() #initial time
   
-  if (!missing(CC)) includePhylogeny = FALSE
-  if (!missing(T)) includeTraits = FALSE
+  if (missing(CC)) includePhylogeny = FALSE
+  if (missing(T)) includeTraits = FALSE
   
   # Check if data is a list ############ to be done
   
   # Check if adapt < n.iter ############ to be done
   
   # Check if adapt & n.iter are wholenumbers ############ to be done
-  
-  # Extract objects from list data
-  ObjectsInData <- names(data)
-  for(i in 1:length(ObjectsInData)){
-    object1 <- data[[i]]
-    assign(ObjectsInData[i], object1)
-  }
-  
-  # In the absence of trait information, only the intercept is included, in which case the 
-  # expectation ??_k is the same for all species k
-  if(!includeTraits){
-    T = matrix(1,nrow=ns)
-    nt = 1 
-    traits = "intercept"
-  }
-  
-  if(includeTraits){
-    T = traits
-    nt=ncol(traits)
-    if(!is.na(colnames(traits))) traits = colnames(traits)
-  }
   
   np <- length(parameters)
   
@@ -63,6 +42,27 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
   ns <- length(SP)
   TID <- tracks[,2]
   TA <- tracks[,3] ########## change for z??
+  
+  # Extract objects from list data
+  for(i in 1:length(data)){
+    tmpobj <- data[[i]]
+    eval(parse(text=paste(names(data)[[i]],"= tmpobj")))
+  }
+  
+  # In the absence of trait information, only the intercept is included, in which case the 
+  # expectation is the same for all species k
+  if(!includeTraits){
+    T = matrix(1,nrow=ns)
+    nt = 1 
+    traits = "intercept"
+  }
+  
+  if(includeTraits){
+    T = T
+    nt=ncol(T)
+    #if(!is.na(colnames(T))) 
+      traits = colnames(T)
+  }
   
   # Prior for ZT: ZT~N(muZT,VZT)
   muZT = matrix(0,nrow = np*nt)
@@ -117,10 +117,10 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
   li1 = numeric(ns)
   for(k in 1:ns){
     
-    specie = which(SPS==SP[k])
-    idt = TID[specie]
+    #specie = which(SPS==SP[k])
+    #idt = TID[specie]
     
-    li1[k] = likelihood(theta = THE[k,], ta = TA[SPS==SP[k]], corridor, patch, di)
+    li1[k] = likelihood(theta = THE[k,], tracks = tracks[SPS==SP[k],])#, corridor, patch, di)
   }
   
   initliks = data.frame(SP,li1) #initial likelihoods
@@ -148,8 +148,8 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
     
     for(k in 1:ns){
       
-      specie = which(SPS==SP[k])
-      idt = TID[specie]
+      # specie = which(SPS==SP[k])
+      # idt = TID[specie]
       
       for(l in 1:np){
         
@@ -158,7 +158,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
         #set.seed(42)
         nthe[l] = nthe[l] + rnorm(1, mean=0, sd = kk[l,k])
         NTHE[k, l] = nthe[l]
-        nli1 = likelihood(theta = nthe, ta = TA[SPS==SP[k]], corridor, patch, di)
+        nli1 = likelihood(theta = nthe, tracks = tracks[SPS==SP[k],])#, corridor, patch, di)
         RES = as.numeric(t(M)) - as.numeric(t(NTHE)) #
         nli2 = -(1/2)*RES%*%kronecker(iDD, iSI)%*%RES #
         ac[l,k,1] = ac[l,k,1] + 1    
