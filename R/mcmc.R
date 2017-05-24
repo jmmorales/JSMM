@@ -12,13 +12,11 @@
   # Likelihood function (demanded: theta and TA)
   # CC - species phylogenetic correlation matrix
   # T - traits (1 clumn for each trait; 1 line for each species) - ns x nt
+  # tracks
+  # parameters
   # n.iter 
   # adapt 
   # posteriors table size
-  # specie = which(SPS==SP[k])
-  # idt = TID[specie]
-  # likelihood(theta = nthe, ta = TA[SPS==SP[k]], corridor, patch, di)
-  
 
 jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
                       CC = CC, T = T, tracks = tracks, parameters = c("log distance","corridor_aff", "forest_aff"),
