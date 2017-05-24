@@ -253,8 +253,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
   likelihoods <- cbind(initliks,li1) # table with initial and inal likelihoods for each species
   colnames(likelihoods) <- c("Species", "InitialLikelihood", "FinalLikelihood")
   
-  posteriors <- list(POST_THE, POST_ZT, POST_SI, POST_RH)
+  posteriors <- list(POST_THE = POST_THE, POST_ZT = POST_ZT, POST_SI = POST_SI, POST_RH = POST_RH)
   
-  return(list(results_summary, likelihoods, posteriors))
-  
+  return(list(results_summary = results_summary, likelihoods = likelihoods, posteriors = posteriors))
 }
