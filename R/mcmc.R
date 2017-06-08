@@ -1,3 +1,5 @@
+#last change: 5/25/17
+
 # Priors: 
   # Prior for ZT: Zt~N(muZT,VZT)
   # Prior for SI: SI~IW(PSI,nu)
@@ -12,17 +14,30 @@
   # Likelihood function (demanded: theta and TA)
   # CC - species phylogenetic correlation matrix
   # T - traits (1 clumn for each trait; 1 line for each species) - ns x nt
-  # tracks
-  # parameters
   # n.iter 
   # adapt 
   # posteriors table size
+  # specie = which(SPS==SP[k])
+  # idt = TID[specie]
+  # likelihood(theta = nthe, ta = TA[SPS==SP[k]], corridor, patch, di)
+
+# Movement arguments
+# include ns as argument?
+  
 
 jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
                       CC = CC, T = T, tracks = tracks, parameters = c("log distance","corridor_aff", "forest_aff"),
                       includeTraits = TRUE, includePhylogeny = TRUE, n.iter = 5000, adapt = 1000){
+#Arguments to be included:
+  #optional input arguments: muZT, VZT, PSI, nu, rhos, priorRho
+  #thinning
+  
+# To be updated: loglikelihood function arguments (spdata and covariates)
   
   tpm0 <- proc.time() #initial time
+  
+  #store <- seq(adapt,n.iter,thin)
+  #nstore <- length(store)
   
   if (missing(CC)) includePhylogeny = FALSE
   if (missing(T)) includeTraits = FALSE
@@ -78,7 +93,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
     nr = length(rhos)
     priorRho = rep(0.5/(nr - 1),nr)
     priorRho[1] = 0.5
-    priorRho = log(priorRho)
+    lpriorRho = log(priorRho)
     iDDs = array(dim = c(ns,ns,nr))
     ldetDDs = numeric(nr)
     
@@ -92,7 +107,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
   
   XT = kronecker(T,diag(np))
   
-  #Parameters to be estimated : THE, SI, M, ZT
+  #Initial values for the parameters to be estimated : THE, SI, ZT, RH
   THE = matrix(0,nrow = ns,ncol=np)
   SI = diag(np) #identity matrix
   iSI = solve(SI) #inverse of matrix SI
@@ -109,7 +124,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
   if(!includePhylogeny){
     RH = 0
     iDD = solve(diag(ns))
-    ldetDD = log(det(solve(ns)))
+    ldetDD = log(det(diag(ns)))
   }
   
   li1 = numeric(ns)
@@ -119,6 +134,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
     #idt = TID[specie]
     
     li1[k] = likelihood(theta = THE[k,], tracks = tracks[SPS==SP[k],])#, corridor, patch, di)
+    #li1[k] = likelihood(theta = THE[k,], spdata = tracks[SPS==SP[k],], covariates = covariates)
   }
   
   initliks = data.frame(SP,li1) #initial likelihoods
@@ -146,8 +162,8 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
     
     for(k in 1:ns){
       
-      # specie = which(SPS==SP[k])
-      # idt = TID[specie]
+      # species = which(SPS==SP[k])
+      # idt = TID[species]
       
       for(l in 1:np){
         
@@ -200,12 +216,12 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
     
     if(includePhylogeny){
       RES = as.numeric(t(M)) - as.numeric(t(THE))
-      nldetDDs = ldetDDs
+      likeRho = numeric(nr)
       for(ii in 1:nr){
-        nldetDDs[ii] = (-1/2)*(np*ldetDDs[ii] + RES%*%kronecker(iDDs[,,ii], iSI)%*%RES)
+        likeRho[ii] = (-1/2)*(np*ldetDDs[ii] + RES%*%kronecker(iDDs[,,ii], iSI)%*%RES)
       }
-      rholi = priorRho + nldetDDs
-      pr = exp(rholi)/sum(exp(rholi))
+      postRho = lpriorRho + likeRho
+      pr = exp(postRho)/sum(exp(postRho))
       RI = sample(seq(1:nr),size=1,prob=pr)
       iDD = iDDs[,,RI]
       ldetDD = ldetDDs[RI]
@@ -213,6 +229,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
     }
     
     #Storing the results
+#    is.member(i,store)
     if(is.wholenumber((i-1)/10) & i > adapt) {
       POST_THE[,,((i-adapt)+10-1)/10] = THE
       POST_ZT[,,((i-adapt)+10-1)/10] = ZT
@@ -220,7 +237,7 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
       POST_RH[((i-adapt)+10-1)/10] = RH
     }
     
-    #Adapation
+    #Adaptation
     for(h in 1:ns){
       q <- 1 + exp(-i/500)
       w <- 1 - 0.1*exp(-i/500)
@@ -254,4 +271,5 @@ jsmm.mcmc <- function(likelihood = likelihood, data = list(corridor, patch, di),
   posteriors <- list(POST_THE = POST_THE, POST_ZT = POST_ZT, POST_SI = POST_SI, POST_RH = POST_RH)
   
   return(list(results_summary = results_summary, likelihoods = likelihoods, posteriors = posteriors))
+  
 }
