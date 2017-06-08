@@ -1,5 +1,8 @@
-loglik <- function(theta, tracks,corridor. = corridor, patch. = patch, di. = di){
+loglik <-function(theta,spdata,covariates){
+#loglik <- function(theta, tracks,corridor. = corridor, patch. = patch, di. = di){
 
+  #To be updated: include spdata and covariates as inputs for function
+  
   # theta = parameters;
   # ta = tracks;
   # corridor/patch = matrix of habitat type (0/1);
@@ -11,14 +14,13 @@ loglik <- function(theta, tracks,corridor. = corridor, patch. = patch, di. = di)
   li    <- 0
   
   idt <- tracks[,2]
-  uid <- unique(idt) # where is idt?
+  uid <- unique(idt)
   ta <- tracks[,3]
 
   for(ss in 1:length(uid)){ #for each one of the tracks
-    lta <- ta[idt==uid[ss]] #analyse each track separately;
-    # vector with all points of each track ss
+    lta <- ta[idt==uid[ss]] #data for the focal track
 
-    for(i in 1:(length(lta)-1)){ #for each deslocation
+    for(i in 1:(length(lta)-1)){ #for each movement step
       x <- lta[i]
       pr <- exp(-di.[x,]/alpha) * exp(betaC * corridor.) * exp(betaP * patch.)
       pr <- pr / sum(pr)
